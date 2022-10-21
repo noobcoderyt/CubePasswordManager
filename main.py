@@ -1,18 +1,38 @@
-user_input = input("Welcome To The Safe And Secure, Cube Password Manager\nType 'passwords' to see the list of the passwords use stored\nType 'add' to add a new password to the database\nType 'remove' to remove a password from database\n")
+import sqlite3
 
+conn = sqlite3.connect('database.db')
+cursor = conn.cursor()
 
-if user_input == ("passwords"):
-    f = open('passwords.txt','r')
-    content = f.read()
-    print(f"The Stored Passwords Are :\n{content}")
-    f.close()
+print("""
+	Welcome to the safe and secure,
+	CubePasswordManager
+	Type 'add' to add a new password
+	Type 'passwords' to see all stored passwords
+	""")
+user_input = input()
 
+cursor.execute("""CREATE TABLE IF NOT EXISTS passwordvault(
+		ID text(30),
+		website text(30),
+		password text(30)
+	)""")
+
+conn.commit()
+
+if user_input==('add'):
+	username = input("Enter the username\n")
+	website = input("Enter the website name\n")
+	password = input("Enter the password")
+
+	query = "INSERT INTO passwordvault (ID,website,password) VALUES (?,?,?)"
+	query_values = (username,website,password)
+	cursor.execute(query,query_values)
+	conn.commit()
+	conn.close()
 else:
-    username = input("Enter The Username Of The Account\n")
-    password = input("Enter The Password Of The Account\n")
-
-    f = open('passwords.txt','a')
-    new_password = f"{username} = {password}\n"
-    f.write(new_password)
-
-input()
+	cursor.execute("SELECT * FROM passwordvault")
+	output = cursor.fetchall()
+	for row in output:
+		print(row)
+	conn.commit()
+	conn.close()
